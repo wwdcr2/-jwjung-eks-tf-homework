@@ -1,46 +1,65 @@
-resource "aws_vpc" "demo" {
-  cidr_block = "10.0.0.0/16"
-
-  tags = tomap({
-    "Name"                                      = "terraform-eks-demo-node",
-    "kubernetes.io/cluster/${var.cluster-name}" = "shared",
-  })
+## VPC CIDR
+variable "vpc_cidr" {
+  default = "10.0.0.0/16"
 }
 
-resource "aws_subnet" "demo" {
-  count = 2
-
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  cidr_block              = "10.0.${count.index}.0/24"
-  map_public_ip_on_launch = true
-  vpc_id                  = aws_vpc.demo.id
-
-  tags = tomap({
-    "Name"                                      = "terraform-eks-demo-node",
-    "kubernetes.io/cluster/${var.cluster-name}" = "shared",
-  })
-}
-
-resource "aws_internet_gateway" "demo" {
-  vpc_id = aws_vpc.demo.id
+## VPC & Internet Gateway
+resource "aws_vpc" "vpc" {
+  cidr_block = var.vpc_cidr
 
   tags = {
-    Name = "terraform-eks-demo"
+    "Name" = "${var.project}-vpc"
   }
 }
 
-resource "aws_route_table" "demo" {
-  vpc_id = aws_vpc.demo.id
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.demo.id
+  tags = {
+    Name = "${var.project}-igw"
   }
 }
 
-resource "aws_route_table_association" "demo" {
-  count = 2
+## Public & Private Subnets
+locals {
+  region = "ap-northeast-2"
+  azs    = ["${local.region}a", "${local.region}c"]
 
-  subnet_id      = aws_subnet.demo.*.id[count.index]
-  route_table_id = aws_route_table.demo.id
+  subnet_cidrs = {
+    pub = [cidrsubnet(var.vpc_cidr, 8, 0), cidrsubnet(var.vpc_cidr, 8, 1)],
+    pri = [cidrsubnet(var.vpc_cidr, 8, 2), cidrsubnet(var.vpc_cidr, 8, 3)]
+  }
+}
+
+module "subnets" {
+  source = "./module/subnet"
+  for_each = local.subnet_cidrs
+
+  project     = var.project
+  vpc_id      = aws_vpc.vpc.id
+  isPublic    = each.key
+  subnet_cidr = each.value
+  azs         = local.azs
+  tags = each.key == "pub" ? { "kubernetes.io/role/elb" = 1 } : { "kubernetes.io/cluster/${local.cluster_name}" = "owned"}
+}
+
+## NAT Gateway in Public-A Subnet
+module "nat" {
+  source = "./module/nat"
+
+  project   = var.project
+  subnet_id = module.subnets["pub"].subnet_ids.0
+}
+
+## Routing to Internet Gateway or NAT Gateway
+resource "aws_route" "pub_igw_route" {
+  route_table_id         = module.subnets["pub"].rt_id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
+}
+
+resource "aws_route" "pri_nat_route" {
+  route_table_id         = module.subnets["pri"].rt_id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = module.nat.nat_id
 }

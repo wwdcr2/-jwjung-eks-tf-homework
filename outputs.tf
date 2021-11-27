@@ -11,7 +11,7 @@ metadata:
   namespace: kube-system
 data:
   mapRoles: |
-    - rolearn: ${aws_iam_role.demo-node.arn}
+    - rolearn: ${aws_iam_role.eks_node_role.arn}
       username: system:node:{{EC2PrivateDNSName}}
       groups:
         - system:bootstrappers
@@ -42,7 +42,7 @@ users:
       args:
         - "token"
         - "-i"
-        - "${var.cluster-name}"
+        - "${local.cluster_name}"
 KUBECONFIG
 }
 
