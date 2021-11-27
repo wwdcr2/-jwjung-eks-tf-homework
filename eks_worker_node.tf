@@ -3,8 +3,6 @@
 #  * IAM role allowing Kubernetes actions to access other AWS services
 #  * EKS Node Group to launch worker nodes
 #
-
-
 resource "aws_eks_node_group" "node_group" {
   cluster_name    = local.cluster_name
   node_group_name = "${var.project}-node"
