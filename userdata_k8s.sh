@@ -8,17 +8,17 @@ kubectl version --short --client
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 sudo mv -v /tmp/eksctl /usr/local/bin
 
-export AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
-echo "export AWS_REGION=${AWS_REGION}" | tee -a ~/.bash_profile
-aws configure set default.region ${AWS_REGION}
+aws configure set default.region ap-northeast-2
+#sa-jwjung
 
+aws eks --region ap-northeast-2 update-kubeconfig --name eks-tf-demo-cluster
 
 aws eks describe-cluster --name eks-tf-demo-cluster --query "cluster.identity.oidc.issuer" --output text
-#-> https://oidc.eks.ap-northeast-2.amazonaws.com/id/325A525D9BB4E7BC9C876F6FBE5F185B
+#-> https://oidc.eks.ap-northeast-2.amazonaws.com/id/8945252C3C307D85E66A09CF51E6CD7E
 
-aws iam list-open-id-connect-providers | grep 325A525D9BB4E7BC9C876F6FBE5F185B
+aws iam list-open-id-connect-providers | grep 8945252C3C307D85E66A09CF51E6CD7E
 
-eksctl utils associate-iam-oidc-provider --cluster eks-tf-demo-cluster --approve #안되면 로컬에서?
+eksctl utils associate-iam-oidc-provider --cluster eks-tf-demo-cluster --approve
 
 aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
 
@@ -26,14 +26,12 @@ eksctl create iamserviceaccount \
   --cluster eks-tf-demo-cluster \
   --namespace kube-system \
   --name aws-load-balancer-controller \
-  --attach-policy-arn arn:aws:iam::693705052816:policy/AWSLoadBalancerControllerIAMPolicy \
+  --attach-policy-arn arn:aws:iam::713225129300:policy/AWSLoadBalancerControllerIAMPolicy \
   --override-existing-serviceaccounts \
   --approve
 
-aws eks describe-cluster --name eks-tf-demo-cluster --query "cluster.identity.oidc.issuer" --output text
-
 mkdir -p /root/environment/manifests/alb-controller && cd /root/environment/manifests/alb-controller
 
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.4.1/cert-manager.yaml
-wget https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.1/docs/install/v2_2_1_full.yaml
-kubectl delete -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/examples/2048/2048_full.yaml
+kubectl apply --validate=false -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/cert-manager.yaml
+kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/v2_2_1_full.yaml
+kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/2048.yaml
