@@ -11,11 +11,7 @@ sudo mv -v /tmp/eksctl /usr/local/bin
 export AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
 echo "export AWS_REGION=${AWS_REGION}" | tee -a ~/.bash_profile
 aws configure set default.region ${AWS_REGION}
-aws configure set aws_access_key_id AKIA2MD4HZVKBWT4S5JR #sa-jwjung
-aws configure set aws_secret_access_key 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
 
-#aws configure set aws_access_key_id AKIA2DBALCKIOJST4HVN #jwjung
-#aws configure set aws_secret_access_key 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
 
 aws eks describe-cluster --name eks-tf-demo-cluster --query "cluster.identity.oidc.issuer" --output text
 #-> https://oidc.eks.ap-northeast-2.amazonaws.com/id/325A525D9BB4E7BC9C876F6FBE5F185B
