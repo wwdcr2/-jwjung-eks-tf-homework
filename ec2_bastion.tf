@@ -42,6 +42,7 @@ resource "aws_instance" "bastion" {
     Name = "${var.project}-ec2-bastion"
   }
   user_data = file("userdata_k8s.sh")
+  depends_on = [aws_eks_node_group.node_group]
 }
 
 resource "aws_iam_instance_profile" "ec2_ssm_profile" {
