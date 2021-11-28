@@ -40,7 +40,7 @@ module "subnets" {
   isPublic    = each.key
   subnet_cidr = each.value
   azs         = local.azs
-  tags = each.key == "pub" ? { "kubernetes.io/role/elb" = 1 } : { "kubernetes.io/cluster/${local.cluster_name}" = "owned"}
+  tags = each.key == "pub" ? { "kubernetes.io/role/elb" = 1 } : { "kubernetes.io/cluster/${local.cluster_name}" = "shared"}
 }
 
 ## NAT Gateway in Public-A Subnet

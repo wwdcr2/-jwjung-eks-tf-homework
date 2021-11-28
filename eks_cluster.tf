@@ -41,5 +41,4 @@ resource "aws_eks_cluster" "demo" {
     aws_iam_role_policy_attachment.eks_AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.eks_AmazonEKSVPCResourceController,
   ]
-  #wait condition
 }
