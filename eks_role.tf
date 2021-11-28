@@ -1,4 +1,4 @@
-## Cluster Role
+# EKS Cluster Role
 resource "aws_iam_role" "eks_cluster_role" {
   name = "${var.project}-role-eks-cluster"
 
@@ -29,7 +29,7 @@ resource "aws_iam_role_policy_attachment" "eks_AmazonEKSVPCResourceController" {
 }
 
 
-# Node Role
+# EKS Node Role
 resource "aws_iam_role" "eks_node_role" {
   name = "${var.project}-role-eks-node"
 

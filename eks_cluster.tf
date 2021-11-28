@@ -1,14 +1,8 @@
-#
-# EKS Cluster Resources
-#  * IAM Role to allow EKS service to manage other AWS services
-#  * EC2 Security Group to allow networking traffic with EKS cluster
-#  * EKS Cluster
-#
-
 locals {
   cluster_name = "${var.project}-cluster"
 }
 
+# EKS Cluster SG
 resource "aws_security_group" "cluster_sg" {
   name        = "${var.project}-sg-eks-cluster"
   description = "Cluster communication with worker nodes"
@@ -26,6 +20,7 @@ resource "aws_security_group" "cluster_sg" {
   }
 }
 
+# EKS Cluster
 resource "aws_eks_cluster" "demo" {
   name     = local.cluster_name
   role_arn = aws_iam_role.eks_cluster_role.arn
