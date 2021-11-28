@@ -34,9 +34,12 @@ resource "aws_eks_cluster" "demo" {
     security_group_ids = [aws_security_group.cluster_sg.id]
     subnet_ids         = module.subnets["pri"].subnet_ids
   }
+  enabled_cluster_log_types = ["api", "audit","authenticator","controllerManager","scheduler"] #logging /aws/eks/eks-tf-demo-cluster/cluster
 
-  # depends_on = [
-  #   aws_iam_role_policy_attachment.eks_AmazonEKSClusterPolicy,
-  #   aws_iam_role_policy_attachment.eks_AmazonEKSVPCResourceController,
-  # ]
+  
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.eks_AmazonEKSVPCResourceController,
+  ]
+  #wait condition
 }

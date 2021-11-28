@@ -9,14 +9,15 @@ curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/d
 sudo mv -v /tmp/eksctl /usr/local/bin
 
 aws configure set default.region ap-northeast-2
-#sa-jwjung
+aws configure set aws_access_key_id [AWS-AccessKey] 
+aws configure set aws_secret_access_key [AWS-SecretKey]
 
 aws eks --region ap-northeast-2 update-kubeconfig --name eks-tf-demo-cluster
 
 aws eks describe-cluster --name eks-tf-demo-cluster --query "cluster.identity.oidc.issuer" --output text
-#-> https://oidc.eks.ap-northeast-2.amazonaws.com/id/8945252C3C307D85E66A09CF51E6CD7E
+#-> https://oidc.eks.ap-northeast-2.amazonaws.com/id/19BE4D21B575A06856066CF1BCB74D5B
 
-aws iam list-open-id-connect-providers | grep 8945252C3C307D85E66A09CF51E6CD7E
+aws iam list-open-id-connect-providers | grep 19BE4D21B575A06856066CF1BCB74D5B
 
 eksctl utils associate-iam-oidc-provider --cluster eks-tf-demo-cluster --approve
 
@@ -33,5 +34,9 @@ eksctl create iamserviceaccount \
 mkdir -p /root/environment/manifests/alb-controller && cd /root/environment/manifests/alb-controller
 
 kubectl apply --validate=false -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/cert-manager.yaml
+
 kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/v2_2_1_full.yaml
+#kubectl get deployment -n kube-system aws-load-balancer-controller 
+
 kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/2048.yaml
+
