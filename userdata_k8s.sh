@@ -26,6 +26,11 @@ eksctl create iamserviceaccount \
   --override-existing-serviceaccounts \
   --approve
 
+#Nginx Ingress
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/aws/deploy.yaml
+kubectl get svc -n ingress-nginx
+https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/nginx.yml
+
 # Ingress & Sample App
 kubectl apply --validate=false -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/cert-manager.yaml
 kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/ingress-controller.yaml
