@@ -12,5 +12,5 @@ spec:
       paths:
       - path: /*
         backend:
-          serviceName: test
+          serviceName: test-nginx
           servicePort: 80

@@ -12,27 +12,9 @@ sudo mv -v /tmp/eksctl /usr/local/bin
 # IAM User
 aws configure set default.region ap-northeast-2
 aws configure set aws_access_key_id [ACCESS_KEY_ID]
-aws configure set aws_secret_access_key [SECRET_ACCESS
+aws configure set aws_secret_access_key [SECRET_ACCESS_KEY]
 
-# IAM & k8s serviceaccount
-aws eks --region ap-northeast-2 update-kubeconfig --name eks-tf-demo-cluster
-eksctl utils associate-iam-oidc-provider --cluster eks-tf-demo-cluster --approve
-aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
-eksctl create iamserviceaccount \
-  --cluster eks-tf-demo-cluster \
-  --namespace kube-system \
-  --name aws-load-balancer-controller \
-  --attach-policy-arn arn:aws:iam::$(aws sts get-caller-identity --output text --query Account):policy/AWSLoadBalancerControllerIAMPolicy \
-  --override-existing-serviceaccounts \
-  --approve
-
-#Nginx Ingress
+#Nginx Ingress & Sample Nginx Page
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/aws/deploy.yaml
-kubectl get svc -n ingress-nginx
-https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/nginx.yml
-
-# Ingress & Sample App
-kubectl apply --validate=false -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/cert-manager.yaml
-kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/ingress-controller.yaml
-#kubectl get deployment -n kube-system aws-load-balancer-controller 
-kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/sample_app.yaml
+kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/ingress.yml
+kubectl apply -f https://raw.githubusercontent.com/wwdcr2/-jwjung-eks-tf-homework/master/file/nginx.yml
