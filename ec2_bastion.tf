@@ -23,7 +23,7 @@ resource "aws_instance" "bastion" {
   tags = {
     Name = "${var.project}-ec2-bastion"
   }
-  #user_data = file("userdata_k8s.sh")
+  user_data = file("userdata_k8s.sh")
   depends_on = [aws_eks_node_group.node_group]
 }
 
